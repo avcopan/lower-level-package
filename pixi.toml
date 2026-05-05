@@ -1,0 +1,38 @@
+[workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64"]
+preview = ["pixi-build"]
+
+[dependencies]
+lower-level-package = { path = "." }
+
+[package]
+name = "lower-level-package"
+version = "0.0.0"
+
+[package.build]
+backend = { name = "pixi-build-python", version = "*" }
+
+[package.build.config]
+ignore-pyproject-manifest = false
+ignore-pypi-mapping = false
+
+[feature.dev.dependencies]
+uv = "*"
+rattler-build = "*"
+pytest = "*"
+
+[environments]
+default = { solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default"}
+
+[feature.dev.tasks]
+# Run tests
+test = "pytest -s"
+# Build and publish conda package
+build-conda = "pixi build -o dist"
+publish-conda = "rattler-build upload anaconda dist/*.conda -o avcopan"
+# Build and publish PyPI package
+build-pypi = "uv build"
+publish-pypi = "uv publish"
+publish-test-pypi = "uv publish --publish-url https://test.pypi.org/legacy/"
